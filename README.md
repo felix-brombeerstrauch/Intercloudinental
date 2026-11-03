@@ -1,3 +1,3 @@
 # Intercloudinental
 
-![Diagram](architecture/system-component-diagram.drawio.png)
+[Architecture](architecture/system-components-and-interfaces.md)
