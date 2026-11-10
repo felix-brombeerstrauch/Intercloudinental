@@ -1,0 +1,26 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "createPlantumlDiagrams (architecture)",
+            "type": "shell",
+            "command": "java",
+            "args": [
+                "-jar",
+                "/opt/homebrew/opt/plantuml/libexec/plantuml.jar",
+                "-tsvg",
+                "${workspaceFolder}/architecture/plantuml",
+                "-o",
+                "${workspaceFolder}/build/architecture/plantuml"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "presentation": {
+                "reveal": "always",
+                "panel": "shared"
+            }
+        }
+    ]
+}

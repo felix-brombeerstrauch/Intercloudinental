@@ -1,0 +1,107 @@
+@startuml
+skinparam nodesep 150
+skinparam ranksep 50
+
+' External APIs
+together {
+    interface "<<external>>\nProviderStorageAPI" as ProviderStorageAPI
+    interface "<<external>>\nProviderAuthenticationAPI" as ProviderAuthAPI
+}
+' Hidden Lines (for formatting only)
+ProviderStorageAPI -[hidden]right- ProviderAuthAPI
+
+' Backend - Public Interfaces
+together {
+    interface "ExternalAuthApi" as ExternalAuthApi
+    interface "ExternalAuthCbApi" as ExternalAuthCbApi
+    interface "InternalAuthApi" as InternalAuthApi
+    interface "RequestApi" as RequestAPI
+}
+
+' Backend
+component Backend {
+    ' Backend - Private Interfaces
+    interface "IExternalTokenStorage" as IExternalTokenStorage
+    interface "IDriveManager" as IDriveManager
+    interface "IInternalKeyStore" as IInternalKeyStore
+    interface "IInternalRefreshTokenStore" as IInternalRefreshTokenStore
+
+    ' Backend - Components
+    component DriveHandle
+    component DriveManager
+    component ExternalAuthManager
+    component ExternalTokenStore
+    component InternalAuthManager
+    component InternalKeyStore
+    component InternalRefreshTokenStore
+    component RequestHandler
+
+    ' Backend - Public Interface Implementation
+    ExternalAuthManager -up- ExternalAuthApi
+    ExternalAuthManager -up- ExternalAuthCbApi
+    InternalAuthManager -up- InternalAuthApi
+    RequestHandler -up- RequestAPI
+
+    ' Backend - Private Interface Implementation
+    ExternalTokenStore -up- IExternalTokenStorage
+    DriveManager -up- IDriveManager
+    InternalKeyStore -up- IInternalKeyStore
+    InternalRefreshTokenStore -up- IInternalRefreshTokenStore
+}
+
+' Frontend
+component Frontend {
+    ' Frontend - Private Interfaces
+    interface "IInternalTokenStore" as IInternalTokenStore
+    interface "IRequestDispatcher" as IRequestDispatcher
+
+    ' Frontend - Components
+    component ExternalAuthView
+    component InternalAuthView
+    component InternalTokenStore 
+    component MainView
+    component RequestDispatcher
+
+    ' Frontend - Private Interface Implementations
+    InternalTokenStore -up- IInternalTokenStore
+    RequestDispatcher -up- IRequestDispatcher
+
+    ' Frontend - Internal Dependencies
+    InternalAuthView ..> IInternalTokenStore
+    MainView ..> IRequestDispatcher
+    RequestDispatcher ..> IInternalTokenStore
+
+    ' Frontend - External Dependencies
+    ExternalAuthView ......> ExternalAuthCbApi
+    ExternalAuthView ....> ProviderAuthAPI
+    InternalAuthView ....> InternalAuthApi
+    MainView ......> ExternalAuthApi
+    RequestDispatcher ....> RequestAPI
+}
+
+component "<<external>> Provider" as Provider
+
+Provider -up- ProviderAuthAPI
+Provider -up- ProviderStorageAPI
+
+
+
+
+
+' Dependencies (Consumed Interfaces & Relationships)
+DriveManager ..> DriveHandle : creates 0..n
+DriveHandle ..> ProviderStorageAPI
+
+ExternalAuthManager .right.> ProviderAuthAPI
+ExternalAuthManager ..> IExternalTokenStorage
+
+
+
+
+
+RequestHandler ..> IDriveManager
+RequestHandler ..> IInternalKeyStore
+
+InternalAuthManager ..> IInternalKeyStore
+InternalAuthManager ..> IInternalRefreshTokenStore
+@enduml
